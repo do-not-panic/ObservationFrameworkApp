@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @Environment(AuthModel.self) private var authModel: AuthModel?
+    
     @State private var contentModel = ContentModel()
     
     @State private var showReviews: Bool = false
@@ -21,37 +24,48 @@ struct ContentView: View {
                 Section("(\(contentModel.favouritesCount)) Favourites") {
                     ForEach(contentModel.data.filter {
                         $0.isFavourite }) { item in
-                        ContentCardView(item: item) { action in
-                            switch action {
-                            case .like:
-                                contentModel.like(item)
-                            case .dislike:
-                                contentModel.dislike(item)
-                            case .reviews:
-                               contentToReview = item
+                            ContentCardView(item: item) { action in
+                                //if AuthModel?.isLoggedIn {
+                               
+                                    switch action {
+                                    case .like:
+                                        contentModel.like(item)
+                                    case .dislike:
+                                        contentModel.dislike(item)
+                                    case .reviews:
+                                        contentToReview = item
+                                    }
+                                //} else {
+                                //    showLogin.toggle()
+                                //}
+                                
+                            }
+                            .swipeActions {
+                                Button("Unfavourite", systemImage: "star.slash") {
+                                    contentModel.toggleFavourite(item)
+                                }
+                                .tint(.yellow)
                             }
                         }
-                        .swipeActions {
-                            Button("Unfavourite", systemImage: "star.slash") {
-                                contentModel.toggleFavourite(item)
-                            }
-                            .tint(.yellow)
-                        }
-                    }
                 }
                 .headerProminence(.increased)
                 
                 Section {
                     ForEach(contentModel.data.filter { !$0.isFavourite} ) { item in
                         ContentCardView(item: item) { action in
-                            switch action {
-                            case .like:
-                                contentModel.like(item)
-                            case .dislike:
-                                contentModel.dislike(item)
-                            case .reviews:
-                                contentToReview = item
-                            }
+                            //if AuthModel?.isLoggedIn {
+                                switch action {
+                                case .like:
+                                        contentModel.like(item)
+                                case .dislike:
+                                        contentModel.dislike(item)
+                                case .reviews:
+                                    contentToReview = item
+                                }
+                            //} else {
+                            //    showLogin.toggle()
+                            //}
+                            
                         }
                         .swipeActions {
                             Button("Favourite", systemImage: "star") {
@@ -86,4 +100,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .environment(AuthModel())
 }

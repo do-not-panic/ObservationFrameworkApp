@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct ObservationFrameworkAppApp: App {
+    
+    @State private var authModel = AuthModel()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(authModel)
         }
     }
 }
