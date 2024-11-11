@@ -22,4 +22,9 @@ class AuthModel {
     func login() {
         isLoggedIn = !user.username.isEmpty && !user.password.isEmpty
     }
+    
+    func logout() {
+        user = .init(username: "", password: "")
+        isLoggedIn = false
+    }
 }

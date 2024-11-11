@@ -12,7 +12,8 @@ struct ReviewsView: View {
     @State private var reviewToModify: Content.Review?
     @State private var showModifyReview: Bool = false
     @Environment(\.dismiss) var dismiss
-    
+    @Environment(AuthModel.self) private var authModel: AuthModel
+    @State private var showLogin: Bool = false
     @Bindable var contentModel: ContentModel
     private let itemIndex: Int
     
@@ -39,11 +40,15 @@ struct ReviewsView: View {
                     .background(Color(uiColor: .systemGray5),
                                 in: .rect(cornerRadius: 10))
                     .swipeActions {
-                        Button("Edit",
-                               systemImage: "pencil"){
-                            reviewToModify = item
+                        Button("Edit", systemImage: "pencil") {
+                            if authModel.isLoggedIn {
+                                reviewToModify = item
+                            } else {
+                                showLogin.toggle()
+                            }
+                            
                         }
-                               .tint(.blue)
+                        .tint(.blue)
                     }
                 }
             }
@@ -65,6 +70,11 @@ struct ReviewsView: View {
                     Spacer()
                 }
             })
+            .sheet(isPresented: $showLogin, content: {
+                LoginView()
+                    .presentationDetents([.height(400)])
+                    .presentationDragIndicator(.visible)
+            })
             .sheet(item: $reviewToModify) {
                 reviewToModify = nil
             } content: { review in
@@ -77,6 +87,7 @@ struct ReviewsView: View {
                     
                 }
             }
+            
 
 //            .sheet(isPresented: $showModifyReview, content: {
 //                ModifyReviewView()
@@ -88,4 +99,5 @@ struct ReviewsView: View {
 }
 #Preview {
     ReviewsView(contentModel: .init(), item: .sample.first!)
+        .environment(AuthModel())
 }

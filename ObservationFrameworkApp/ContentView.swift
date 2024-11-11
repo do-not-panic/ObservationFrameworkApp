@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @Environment(AuthModel.self) private var authModel: AuthModel?
+    @Environment(AuthModel.self) private var authModel: AuthModel
     
     @State private var contentModel = ContentModel()
     
@@ -25,19 +25,24 @@ struct ContentView: View {
                     ForEach(contentModel.data.filter {
                         $0.isFavourite }) { item in
                             ContentCardView(item: item) { action in
-                                //if AuthModel?.isLoggedIn {
-                               
-                                    switch action {
-                                    case .like:
+                                switch action {
+                                case .like:
+                                    if authModel.isLoggedIn {
                                         contentModel.like(item)
-                                    case .dislike:
-                                        contentModel.dislike(item)
-                                    case .reviews:
-                                        contentToReview = item
+                                    } else {
+                                        showLogin.toggle()
                                     }
-                                //} else {
-                                //    showLogin.toggle()
-                                //}
+                                case .dislike:
+                                    if authModel.isLoggedIn {
+                                        contentModel.dislike(item)
+                                    } else {
+                                        showLogin.toggle()
+                                    }
+                                    
+                                case .reviews:
+                                    contentToReview = item
+                                }
+                                
                                 
                             }
                             .swipeActions {
@@ -53,18 +58,25 @@ struct ContentView: View {
                 Section {
                     ForEach(contentModel.data.filter { !$0.isFavourite} ) { item in
                         ContentCardView(item: item) { action in
-                            //if AuthModel?.isLoggedIn {
-                                switch action {
-                                case .like:
-                                        contentModel.like(item)
-                                case .dislike:
-                                        contentModel.dislike(item)
-                                case .reviews:
-                                    contentToReview = item
+                            switch action {
+                            case .like:
+                                if authModel.isLoggedIn {
+                                    contentModel.like(item)
+                                } else {
+                                    showLogin.toggle()
                                 }
-                            //} else {
-                            //    showLogin.toggle()
-                            //}
+                                
+                            case .dislike:
+                                if authModel.isLoggedIn {
+                                    contentModel.dislike(item)
+                                } else {
+                                    showLogin.toggle()
+                                }
+                                
+                            case .reviews:
+                                contentToReview = item
+                            }
+                            
                             
                         }
                         .swipeActions {
@@ -89,8 +101,13 @@ struct ContentView: View {
             })
             .toolbar(content: {
                 ToolbarItem(placement: .primaryAction) {
-                    Button("Login") {
-                        showLogin.toggle()
+                    Button(authModel.isLoggedIn ? "Logout" :"Login") {
+                        if authModel.isLoggedIn {
+                            authModel.logout()
+                        } else  {
+                            showLogin.toggle()
+                        }
+                        
                     }
                 }
             })
